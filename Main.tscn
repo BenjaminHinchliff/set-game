@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Deck/Deck.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Main.gd" type="Script" id=2]
+
+[sub_resource type="Environment" id=1]
+background_mode = 1
+background_color = Color( 0.0431373, 0.537255, 0, 1 )
+ambient_light_color = Color( 1, 1, 1, 1 )
+
+[node name="Main" type="Spatial"]
+script = ExtResource( 2 )
+debug_mode = true
+start = Vector2( -4, -0.5 )
+step = Vector2( 4, 3 )
+draw_time = 0.25
+
+[node name="Deck" parent="." instance=ExtResource( 1 )]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -9.689, 0.5, 3.363 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 10, 4 )
+environment = SubResource( 1 )
+size = 14.5769
+
+[node name="CardCollectLocation" type="Spatial" parent="."]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 8.57087, 0, 4 )

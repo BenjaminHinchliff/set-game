@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Deck/Deck.dae" type="PackedScene" id=1]
+[ext_resource path="res://Deck/Deck.gd" type="Script" id=2]
+[ext_resource path="res://Card/Card.tscn" type="PackedScene" id=3]
+
+[node name="Deck" type="Spatial"]
+script = ExtResource( 2 )
+card_scene = ExtResource( 3 )
+
+[node name="CardSpawnPoint" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+
+[node name="Deck" parent="." instance=ExtResource( 1 )]
