@@ -35,6 +35,7 @@ export(int, 1, 3) var number := 1 setget set_number
 var ready := false
 var is_moving := false
 var selected := false
+var usable := true
 
 onready var tween := $Tween as Tween
 onready var front := $Front as MeshInstance
@@ -61,7 +62,7 @@ func _on_Card_input_event(
 		_click_normal: Vector3,
 		_shape_idx: int
 	) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
+	if event is InputEventMouseButton and event.is_pressed() and usable:
 		emit_signal("card_clicked", self)
 
 func toggle_selection():

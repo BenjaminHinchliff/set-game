@@ -11,9 +11,9 @@ ambient_light_color = Color( 1, 1, 1, 1 )
 [node name="Main" type="Spatial"]
 script = ExtResource( 2 )
 debug_mode = true
-start = Vector2( -4, -0.5 )
-step = Vector2( 4, 3 )
-draw_time = 0.25
+start = Vector2( -4, -1 )
+step = Vector2( 3.5, 2.5 )
+draw_time = 1.0
 
 [node name="Deck" parent="." instance=ExtResource( 1 )]
 transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -9.689, 0.5, 3.363 )

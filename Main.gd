@@ -10,6 +10,7 @@ var drawn_cards := []
 var selected_cards := []
 var _card_final_y_offset := 0.0
 var has_game_ended := false
+var last_row := 0
 
 onready var deck := $Deck as Deck
 onready var card_collection_loc := $CardCollectLocation as Spatial
@@ -25,42 +26,69 @@ func _on_card_clicked(card: Card) -> void:
 	card.toggle_selection()
 	if selected_cards.size() == 3:
 		var is_set: bool = self.callv("_is_set", selected_cards)
+		var new_cards := []
 		for card in selected_cards:
 			if is_set:
-				var target_rot: Vector3 = card.rotation
-				target_rot.y = card_collection_loc.rotation.y
-				card.move_to(
-					card_collection_loc.translation
-						+ Vector3(0.0, _card_final_y_offset, 0.0),
-					target_rot,
-					0.5
-				)
-				_card_final_y_offset += 0.025
+				var target_trans: Vector3 = card.translation
+				target_trans.y = 0.0
+				var next = _draw_and_move_card(target_trans, draw_time)
+				if next != null:
+					var target_rot: Vector3 = card.rotation
+					target_rot.y = card_collection_loc.rotation.y
+					card.move_to(
+						card_collection_loc.translation
+							+ Vector3(0.0, _card_final_y_offset, 0.0),
+						target_rot,
+						0.5
+					)
+					_card_final_y_offset += 0.025
+					new_cards.push_back(next)
+				card.usable = false
 				drawn_cards.erase(card)
 			card.toggle_selection()
 		selected_cards.clear()
 		if is_set:
+			for card in new_cards:
+				yield(card, "move_completed")
 			if !_do_sets_remain():
-				_redraw_cards()
+				_add_additional_cards()
 			elif debug_mode:
 				_highlight_set()
 
 func _redraw_cards() -> void:
-	while !_do_sets_remain() and !has_game_ended:
+	if !has_game_ended:
 		_clear_current_cards()
 		for y in range(0, size.y):
+			last_row = y
 			for x in range(0, size.x):
 				_draw_and_move_card(
 					Vector3(start.x + step.x * x, 0.0, start.y + step.y * y),
 					draw_time
 				)
-				yield(get_tree().create_timer(draw_time), "timeout")
-		for card in drawn_cards:
-			(card as Card).flip()
 		for card in drawn_cards:
 			yield(card, "flip_completed")
+		for card in drawn_cards:
+			card.flip()
+		_add_additional_cards()
+
+func _add_additional_cards() -> void:
+	while !_do_sets_remain() and !has_game_ended:
+		last_row += 1
+		var new_cards := []
+		for x in range(0, size.x):
+			var card := _draw_and_move_card(
+				Vector3(start.x + step.x * x, 0.0, start.y + step.y * last_row),
+				draw_time
+			)
+			if card != null:
+				new_cards.push_back(card)
+		for card in new_cards:
+			yield(card, "move_completed")
+		for card in new_cards:
+			card.flip()
 	if debug_mode:
 		_highlight_set()
+			
 # for debugging purposes
 func _highlight_set() -> void:
 	var set := _find_set(drawn_cards, [])
@@ -73,7 +101,7 @@ func _highlight_set() -> void:
 		)
 
 # place to move to
-func _draw_and_move_card(pos: Vector3, time: float) -> void:
+func _draw_and_move_card(pos: Vector3, time: float) -> Card:
 	var drawn_card := deck.draw_card()
 	if drawn_card != null:
 		add_child(drawn_card)
@@ -83,12 +111,19 @@ func _draw_and_move_card(pos: Vector3, time: float) -> void:
 				.get_global_transform()
 		drawn_card.translation = spawn_transform.origin
 		drawn_card.rotation.y = spawn_transform.basis.z.angle_to(Vector3(0, 0, 1))
-		var target_rot := drawn_card.rotation
-		target_rot.y = PI
-		drawn_card.move_to(pos, target_rot, time)
+		_move_and_flip_card(drawn_card, pos, time)
 	else:
 		_clear_current_cards()
 		has_game_ended = true
+	return drawn_card
+
+func _move_and_flip_card(card: Card, pos: Vector3, time: float) -> void:
+	var target_rot := card.rotation
+	target_rot.y = PI
+	card.move_to(pos, target_rot, time)
+	yield(card, "move_completed")
+	yield(card, "flip_completed")
+	card.flip()
 
 func _clear_current_cards() -> void:
 	while drawn_cards.size() > 0:
