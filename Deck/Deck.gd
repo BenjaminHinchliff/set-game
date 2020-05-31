@@ -12,7 +12,11 @@ func _ready() -> void:
 	randomize()
 	reset()
 	shuffle()
-	
+
+func _exit() -> void:
+	for card in deck:
+		card.queue_free()
+
 func reset() -> void:
 	deck = []
 	# I can't decide if this is bad code or not (probably is tbh)

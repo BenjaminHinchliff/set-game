@@ -10,7 +10,6 @@ ambient_light_color = Color( 1, 1, 1, 1 )
 
 [node name="Main" type="Spatial"]
 script = ExtResource( 2 )
-debug_mode = true
 start = Vector2( -4, -1 )
 step = Vector2( 3.5, 2.5 )
 draw_time = 1.0

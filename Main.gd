@@ -7,6 +7,7 @@ export var size := Vector2(3, 4)
 export var draw_time := 0.25
 
 var drawn_cards := []
+var discarded_cards := []
 var selected_cards := []
 var _card_final_y_offset := 0.0
 var has_game_ended := false
@@ -17,6 +18,11 @@ onready var card_collection_loc := $CardCollectLocation as Spatial
 
 func _ready() -> void:
 	_redraw_cards()
+
+func _exit() -> void:
+	var all_cards := drawn_cards + discarded_cards
+	for card in all_cards:
+		card.queue_free()
 
 func _on_card_clicked(card: Card) -> void:
 	if card.selected:
@@ -45,6 +51,7 @@ func _on_card_clicked(card: Card) -> void:
 					new_cards.push_back(next)
 				card.usable = false
 				drawn_cards.erase(card)
+				discarded_cards.push_back(card)
 			card.toggle_selection()
 		selected_cards.clear()
 		if is_set:
